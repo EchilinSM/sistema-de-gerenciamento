@@ -1,0 +1,347 @@
+#include <stdio.h> 
+
+#include <stdlib.h> 
+
+#include <string.h> 
+
+  
+
+  
+
+typedef struct { 
+
+    char nome[50]; 
+
+    int quantidade; 
+
+    float preco; 
+
+} Produto; 
+
+  
+
+  
+
+void adicionarProduto(Produto produtos[], int *contador); 
+
+void removerProduto(Produto produtos[], int *contador); 
+
+void exibirEstoque(Produto produtos[], int contador); 
+
+void exibirValorTotal(Produto produtos[], int contador); 
+
+  
+
+  
+
+void salvarEstoque(Produto produtos[], int contador, const char *nomeArquivo); 
+
+void carregarEstoque(Produto produtos[], int *contador, const char *nomeArquivo); 
+
+  
+
+int main() { 
+
+    Produto produtos[100]; 
+
+    int contador = 0; 
+
+    int opcao; 
+
+    const char *nomeArquivo = "estoque.txt"; 
+
+  
+
+    carregarEstoque(produtos, &contador, nomeArquivo); 
+
+  
+
+    do { 
+
+        printf("1. Adicionar Produto\n"); 
+
+        printf("2. Remover Produto\n"); 
+
+        printf("3. Exibir Estoque\n"); 
+
+        printf("4. Exibir Valor Total das compras\n"); 
+
+        printf("5. Sair\n"); 
+
+        printf("Escolha uma opcao: "); 
+
+        scanf("%d", &opcao); 
+
+        getchar(); 
+
+  
+
+        switch (opcao) { 
+
+            case 1: 
+
+                adicionarProduto(produtos, &contador); 
+
+                salvarEstoque(produtos, contador, nomeArquivo); 
+
+                break; 
+
+            case 2: 
+
+                removerProduto(produtos, &contador); 
+
+                salvarEstoque(produtos, contador, nomeArquivo); 
+
+                break; 
+
+            case 3: 
+
+                exibirEstoque(produtos, contador); 
+
+                break; 
+
+            case 4: 
+
+                exibirValorTotal(produtos, contador); 
+
+                break; 
+
+            case 5: 
+
+                printf("Saindo...\n"); 
+
+                break; 
+
+            default: 
+
+                printf("Opcao invalida. Tente novamente.\n"); 
+
+        } 
+
+        if (opcao != 5) { 
+
+            printf("Pressione Enter para continuar..."); 
+
+            getchar(); 
+
+            system("cls"); 
+
+        } 
+
+    } while (opcao != 5); 
+
+  
+
+    return 0; 
+
+} 
+
+  
+
+void adicionarProduto(Produto produtos[], int *contador) { 
+
+    if (*contador >= 100) { 
+
+        printf("Estoque cheio!\n"); 
+
+        return; 
+
+    } 
+
+    Produto novoProduto; 
+
+  
+
+    printf("Digite o nome do produto: "); 
+
+    fgets(novoProduto.nome, 50, stdin); 
+
+    novoProduto.nome[strcspn(novoProduto.nome, "\n")] = '\0'; 
+
+  
+
+    printf("Digite a quantidade: "); 
+
+    scanf("%d", &novoProduto.quantidade); 
+
+    printf("Digite o preco: "); 
+
+    scanf("%f", &novoProduto.preco); 
+
+    getchar(); 
+
+  
+
+    produtos[*contador] = novoProduto; 
+
+    (*contador)++; 
+
+    printf("Produto adicionado com sucesso!\n"); 
+
+} 
+
+  
+
+void removerProduto(Produto produtos[], int *contador) { 
+
+    if (*contador == 0) { 
+
+        printf("Estoque vazio!\n"); 
+
+        return; 
+
+    } 
+
+  
+
+    exibirEstoque(produtos, *contador); 
+
+    int index; 
+
+    printf("Digite o indice do produto a ser removido (1 a %d): ", *contador); 
+
+    scanf("%d", &index); 
+
+    getchar(); 
+
+  
+
+    if (index < 1 || index > *contador) { 
+
+        printf("Indice invalido!\n"); 
+
+        return; 
+
+    } 
+
+  
+
+    for (int i = index - 1; i < *contador - 1; i++) { 
+
+        produtos[i] = produtos[i + 1]; 
+
+    } 
+
+    (*contador)--; 
+
+    printf("Produto removido com sucesso!\n"); 
+
+} 
+
+  
+
+void exibirEstoque(Produto produtos[], int contador) { 
+
+    if (contador == 0) { 
+
+        printf("Estoque vazio!\n"); 
+
+        return; 
+
+    } 
+
+  
+
+    printf("\nEstoque Atual:\n"); 
+
+    for (int i = 0; i < contador; i++) { 
+
+        printf("%d. Nome: %s | Quantidade: %d | Preco: %.2f\n", i + 1, produtos[i].nome, produtos[i].quantidade, produtos[i].preco); 
+
+    } 
+
+} 
+
+  
+
+void exibirValorTotal(Produto produtos[], int contador) { 
+
+    if (contador == 0) { 
+
+        printf("Estoque vazio!\n"); 
+
+        return; 
+
+    } 
+
+  
+
+    float valorTotal = 0; 
+
+    for (int i = 0; i < contador; i++) { 
+
+        valorTotal += produtos[i].quantidade * produtos[i].preco; 
+
+    } 
+
+  
+
+    printf("\nValor Total do Estoque: %.2f\n", valorTotal); 
+
+} 
+
+  
+
+void salvarEstoque(Produto produtos[], int contador, const char *nomeArquivo) { 
+
+    FILE *arquivo = fopen(nomeArquivo, "w"); 
+
+    if (arquivo == NULL) { 
+
+        perror("Erro ao abrir arquivo para escrita"); 
+
+        return; 
+
+    } 
+
+  
+
+    for (int i = 0; i < contador; i++) { 
+
+        fprintf(arquivo, "%s\n%d\n%f\n", produtos[i].nome, produtos[i].quantidade, produtos[i].preco); 
+
+    } 
+
+  
+
+    fclose(arquivo); 
+
+    printf("Estoque salvo com sucesso!\n"); 
+
+} 
+
+  
+
+void carregarEstoque(Produto produtos[], int *contador, const char *nomeArquivo) { 
+
+    FILE *arquivo = fopen(nomeArquivo, "r"); 
+
+    if (arquivo == NULL) { 
+
+        printf("Arquivo de estoque nao encontrado. Iniciando novo estoque.\n"); 
+
+        return; 
+
+    } 
+
+  
+
+    Produto produto; 
+
+    while (fscanf(arquivo, "[^\n]\n%d\n%f\n", produto.nome, &produto.quantidade, &produto.preco) == 3) { 
+
+        produtos[*contador] = produto; 
+
+        (*contador)++; 
+
+    } 
+
+  
+
+    fclose(arquivo); 
+
+    printf("Estoque carregado com sucesso!\n"); 
+
+} 
+
+ 
